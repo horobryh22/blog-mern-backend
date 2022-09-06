@@ -5,6 +5,7 @@ import mongoose from 'mongoose';
 import {validationResult} from 'express-validator';
 
 import {registerValidation} from './validations/auth.js';
+import checkAuth from './utils/checkAuth.js';
 
 import UserModel from './models/User.js';
 
@@ -15,6 +16,29 @@ mongoose.connect('mongodb+srv://horobryh22:549549ab@cluster0.dfnxtha.mongodb.net
 const app = express();
 
 app.use(express.json());
+
+app.get('/auth/me', checkAuth, async (req, res) => {
+    try {
+
+        const user = await UserModel.findById(req.userId);
+
+        if (!user) {
+            res.status(404).json({
+                message: 'User not found'
+            })
+        }
+
+        const {passwordHash, ...userData} = user._doc;
+
+        res.json(userData);
+
+    } catch (e) {
+        console.log(e);
+        res.status(403).json({
+            message: 'You do not have an access',
+        });
+    }
+})
 
 app.post('/auth/login', async(req, res) => {
     try {
@@ -30,7 +54,7 @@ app.post('/auth/login', async(req, res) => {
         const isValidPassword = await bcrypt.compare(req.body.password, user._doc.passwordHash);
 
         if (!isValidPassword) {
-            res.status(404).json({
+            res.status(400).json({
                 message: 'Invalid login or password',
             })
         }
