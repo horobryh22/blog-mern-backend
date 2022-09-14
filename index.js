@@ -1,6 +1,7 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import multer from 'multer';
+import cors from 'cors';
 
 import {
     registerValidation,
@@ -30,6 +31,7 @@ const storage = multer.diskStorage({
 const upload = multer({storage});
 
 app.use(express.json());
+app.use(cors());
 app.use('/upload', express.static('uploads')); //if we need to get files from static folders, we say express to it doesn't accept this path                                                     //like get request
 
 app.get('/auth/me', checkAuth, UserController.getMe);
@@ -41,6 +43,8 @@ app.post('/upload', checkAuth, upload.single('image'), (req, res) => {
         url: `uploads/${req.file.originalname}`
     })
 });
+
+app.get('/tags', PostController.getLastTags);
 
 app.get('/posts', PostController.getAll);
 app.get('/posts/:id', PostController.getOne);

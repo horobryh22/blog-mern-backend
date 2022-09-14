@@ -40,11 +40,10 @@ export const register = async (req, res) => {
 
 export const login = async(req, res) => {
     try {
-
         const user = await UserModel.findOne({email: req.body.email});
 
         if (!user) {
-            res.status(404).json({
+            return res.status(404).json({
                 message: 'User not found',
             })
         }
@@ -52,7 +51,7 @@ export const login = async(req, res) => {
         const isValidPassword = await bcrypt.compare(req.body.password, user._doc.passwordHash);
 
         if (!isValidPassword) {
-            res.status(400).json({
+            return res.status(400).json({
                 message: 'Invalid login or password',
             })
         }
