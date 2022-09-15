@@ -90,7 +90,7 @@ export const remove = async (req, res) => {
                 });
             }
 
-            res.json({
+            return res.json({
                 success: true
             });
         });

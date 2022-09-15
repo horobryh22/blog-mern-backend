@@ -32,7 +32,7 @@ const upload = multer({storage});
 
 app.use(express.json());
 app.use(cors());
-app.use('/upload', express.static('uploads')); //if we need to get files from static folders, we say express to it doesn't accept this path                                                     //like get request
+app.use('/uploads', express.static('uploads')); //if we need to get files from static folders, we say express to it doesn't accept this path                                                     //like get request
 
 app.get('/auth/me', checkAuth, UserController.getMe);
 app.post('/auth/login', loginValidation, handleValidationErrors, UserController.login);
@@ -40,7 +40,7 @@ app.post('/auth/register', registerValidation, handleValidationErrors, UserContr
 
 app.post('/upload', checkAuth, upload.single('image'), (req, res) => {
     res.json({
-        url: `uploads/${req.file.originalname}`
+        url: `/uploads/${req.file.originalname}`
     })
 });
 
