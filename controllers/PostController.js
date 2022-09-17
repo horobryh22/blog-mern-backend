@@ -18,9 +18,11 @@ export const getLastTags = async (req, res) => {
 
 export const getAll = async (req, res) => {
     try {
-        const posts = await PostModel.find().populate('user').exec();
+        const sort = req.headers.sort;
+        const posts = await PostModel.find().sort({[sort]: -1}).populate('user').exec();
+        const count = await PostModel.count();
 
-        res.json(posts);
+        res.json({posts, postsTotalCount: count});
     } catch (e) {
         console.log(e);
         res.status(500).json({
@@ -47,13 +49,13 @@ export const getOne = async (req, res) => {
                 if (err) {
                     console.log(err);
                     return res.status(500).json({
-                        message: 'Не удалось вернуть статью',
+                        message: 'Did not succeed in getting article',
                     });
                 }
 
                 if (!doc) {
                     return res.status(404).json({
-                        message: 'Статья не найдена',
+                        message: 'The article not found',
                     });
                 }
 
@@ -63,18 +65,19 @@ export const getOne = async (req, res) => {
     } catch (err) {
         console.log(err);
         res.status(500).json({
-            message: 'Не удалось получить статьи',
+            message: 'Did not succeed in getting articles',
         });
     }
 };
+
+
 
 export const remove = async (req, res) => {
     try {
         const postId = req.params.id;
 
-        await PostModel.findOneAndDelete({
+        PostModel.findOneAndDelete({
             _id: postId,
-
         }, (err, doc) => {
             if (err) {
                 console.log(err);
@@ -90,7 +93,7 @@ export const remove = async (req, res) => {
                 });
             }
 
-            return res.json({
+            res.json({
                 success: true
             });
         });
