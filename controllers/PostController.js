@@ -3,9 +3,9 @@ import PostModel from '../models/Post.js';
 
 export const getLastTags = async (req, res) => {
     try {
-        const posts = await PostModel.find().limit(5).exec();
+        const posts = await PostModel.find().sort({'createdAt': -1}).limit(5).exec();
 
-        const tags = posts.map(post => post.tags).flat().slice(0, 5)
+        const tags = posts.map(post => post.tags).flat().filter(tag => tag !== '').slice(0, 5);
 
         res.json(tags);
     } catch (e) {
@@ -19,7 +19,10 @@ export const getLastTags = async (req, res) => {
 export const getAll = async (req, res) => {
     try {
         const sort = req.headers.sort;
-        const posts = await PostModel.find().sort({[sort]: -1}).populate('user').exec();
+        const tag = req.headers.tag;
+        const posts =  tag ?
+            await PostModel.find({tags: tag}).sort({[sort]: -1}).populate('user').exec() :
+            await PostModel.find().sort({[sort]: -1}).populate('user').exec();
         const count = await PostModel.count();
 
         res.json({posts, postsTotalCount: count});

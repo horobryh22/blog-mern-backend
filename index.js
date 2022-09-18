@@ -6,10 +6,11 @@ import cors from 'cors';
 import {
     registerValidation,
     loginValidation,
-    postCreateValidation
+    postCreateValidation,
+    commentCreateValidation
 } from './validations.js';
 
-import {PostController, UserController} from './controllers/index.js';
+import {PostController, UserController, CommentController} from './controllers/index.js';
 import {checkAuth, handleValidationErrors} from './utils/index.js';
 
 
@@ -43,6 +44,12 @@ app.post('/upload', checkAuth, upload.single('image'), (req, res) => {
         url: `/uploads/${req.file.originalname}`
     })
 });
+
+app.get('/comments', CommentController.getLastComments);
+app.get('/comments/:id', CommentController.getCommentsForSelectedPost);
+app.post('/comments', checkAuth, commentCreateValidation, handleValidationErrors, CommentController.create);
+app.delete('/comments/:id', checkAuth, CommentController.remove);
+app.patch('/comments/:id', checkAuth, commentCreateValidation, handleValidationErrors, CommentController.update);
 
 app.get('/tags', PostController.getLastTags);
 app.get('/posts', PostController.getAll);

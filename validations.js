@@ -18,3 +18,7 @@ export const postCreateValidation = [
     body('tags', 'Incorrect data format').optional().isArray(),
     body('imageUrl', 'Invalid image link').optional().isString(),
 ]
+
+export const commentCreateValidation = [
+    body('text', 'Please, enter min 3 symbols').isLength({min: 3}).isString(),
+]
