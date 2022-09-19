@@ -8,11 +8,10 @@ import {
     loginValidation,
     postCreateValidation,
     commentCreateValidation
-} from './validations.js';
+} from 'validations/validations.js';
 
 import {PostController, UserController, CommentController} from './controllers/index.js';
 import {checkAuth, handleValidationErrors} from './utils/index.js';
-
 
 mongoose.connect('mongodb+srv://horobryh22:549549ab@cluster0.dfnxtha.mongodb.net/blog?retryWrites=true&w=majority')
     .then(() => console.log('DB ok!'))
@@ -33,25 +32,27 @@ const upload = multer({storage});
 
 app.use(express.json());
 app.use(cors());
-app.use('/uploads', express.static('uploads')); //if we need to get files from static folders, we say express to it doesn't accept this path                                                     //like get request
+app.use('/uploads', express.static('uploads'));
 
+//auth
 app.get('/auth/me', checkAuth, UserController.getMe);
 app.post('/auth/login', loginValidation, handleValidationErrors, UserController.login);
 app.post('/auth/register', registerValidation, handleValidationErrors, UserController.register);
-
-app.post('/upload', checkAuth, upload.single('image'), (req, res) => {
+//upload
+app.post('/upload', upload.single('image'), (req, res) => {
     res.json({
         url: `/uploads/${req.file.originalname}`
     })
 });
-
+//comments
 app.get('/comments', CommentController.getLastComments);
 app.get('/comments/:id', CommentController.getCommentsForSelectedPost);
 app.post('/comments', checkAuth, commentCreateValidation, handleValidationErrors, CommentController.create);
 app.delete('/comments/:id', checkAuth, CommentController.remove);
 app.patch('/comments/:id', checkAuth, commentCreateValidation, handleValidationErrors, CommentController.update);
-
+//tags
 app.get('/tags', PostController.getLastTags);
+//posts
 app.get('/posts', PostController.getAll);
 app.get('/posts/:id', PostController.getOne);
 app.post('/posts', checkAuth, postCreateValidation, handleValidationErrors, PostController.create);
