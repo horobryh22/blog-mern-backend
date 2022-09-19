@@ -1,13 +1,15 @@
 import PostModel from '../models/Post.js';
+import CommentModel from '../models/Comment.js';
 
 
 export const getLastTags = async (req, res) => {
     try {
-        const posts = await PostModel.find().sort({'createdAt': -1}).limit(5).exec();
+        const posts = await PostModel.find().sort({'createdAt': -1}).limit(10).exec();
 
-        const tags = posts.map(post => post.tags).flat().filter(tag => tag !== '').slice(0, 5);
+        const tags = posts.map(post => post.tags).flat().filter(tag => tag !== '').slice(0, 10);
+        const uniqTags = Array.from(new Set(tags));
 
-        res.json(tags);
+        res.json(uniqTags);
     } catch (e) {
         console.log(e);
         res.status(500).json({
@@ -81,7 +83,7 @@ export const remove = async (req, res) => {
 
         PostModel.findOneAndDelete({
             _id: postId,
-        }, (err, doc) => {
+        }, async (err, doc) => {
             if (err) {
                 console.log(err);
                 return res.status(500).json({
@@ -95,6 +97,10 @@ export const remove = async (req, res) => {
                     message: 'Article not found',
                 });
             }
+
+            await CommentModel.deleteMany({
+                post: postId,
+            });
 
             res.json({
                 success: true

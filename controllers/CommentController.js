@@ -1,4 +1,5 @@
 import CommentModel from '../models/Comment.js';
+import PostModel from '../models/Post.js';
 
 export const getCommentsForSelectedPost = async (req, res) => {
     try {
@@ -34,6 +35,18 @@ export const create = async (req, res) => {
             post: req.body.post,
             user: req.userId
         });
+
+        await PostModel.findOneAndUpdate(
+            {
+                _id: req.body.post,
+            },
+            {
+                $inc: {commentsCount: 1},
+            },
+            {
+                returnDocument: 'after',
+            }
+        )
 
         const comment = await doc.save();
 
