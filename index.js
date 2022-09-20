@@ -14,7 +14,7 @@ import {
 import {PostController, UserController, CommentController} from './controllers/index.js';
 import {checkAuth, handleValidationErrors} from './utils/index.js';
 
-mongoose.connect(process.env.MONGODB_URI || 'mongodb+srv://horobryh22:549549ab@cluster0.dfnxtha.mongodb.net/blog?retryWrites=true&w=majority')
+mongoose.connect(process.env.MONGODB_URI)
     .then(() => console.log('DB ok!'))
     .catch((err) => console.log('DB error', err));
 
@@ -42,24 +42,29 @@ app.use('/uploads', express.static('uploads'));
 app.get('/', (req, res) => {
     res.send('Server working!')
 });
+
 //auth
 app.get('/auth/me', checkAuth, UserController.getMe);
 app.post('/auth/login', loginValidation, handleValidationErrors, UserController.login);
 app.post('/auth/register', registerValidation, handleValidationErrors, UserController.register);
+
 //upload
 app.post('/upload', upload.single('image'), (req, res) => {
     res.json({
         url: `/uploads/${req.file.originalname}`
     })
 });
+
 //comments
 app.get('/comments', CommentController.getLastComments);
 app.get('/comments/:id', CommentController.getCommentsForSelectedPost);
 app.post('/comments', checkAuth, commentCreateValidation, handleValidationErrors, CommentController.create);
 app.delete('/comments/:id', checkAuth, CommentController.remove);
 app.patch('/comments/:id', checkAuth, commentCreateValidation, handleValidationErrors, CommentController.update);
+
 //tags
 app.get('/tags', PostController.getLastTags);
+
 //posts
 app.get('/posts', PostController.getAll);
 app.get('/posts/:id', PostController.getOne);
