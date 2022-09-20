@@ -38,6 +38,10 @@ app.use(express.json());
 app.use(cors());
 app.use('/uploads', express.static('uploads'));
 
+//test
+app.get('/', (req, res) => {
+    res.send('Server working!')
+});
 //auth
 app.get('/auth/me', checkAuth, UserController.getMe);
 app.post('/auth/login', loginValidation, handleValidationErrors, UserController.login);
